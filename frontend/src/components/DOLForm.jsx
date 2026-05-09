@@ -20,39 +20,50 @@ export default function DOLForm({ prefill }) {
   }
 
   return (
-    <div className="bg-gray-900 rounded-2xl p-5 flex flex-col gap-4 border border-gray-800">
+    <section
+      aria-label="DOL complaint prefill"
+      className="bg-white dark:bg-slate-900 rounded-2xl p-5 flex flex-col gap-4 border border-slate-200 dark:border-slate-800 shadow-sm"
+    >
       <div className="flex items-center justify-between">
         <div>
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">DOL Complaint Prefill</span>
-          <p className="text-xs text-gray-600 mt-0.5">Copy these fields into the DOL complaint form</p>
+          <h2 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+            DOL Complaint Prefill
+          </h2>
+          <p className="text-xs text-slate-400 dark:text-slate-600 mt-0.5">
+            Copy these fields into the DOL complaint form
+          </p>
         </div>
         <button
           onClick={copy}
-          className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors flex-shrink-0 ${
-            copied ? 'bg-green-800 text-green-300' : 'bg-gray-800 hover:bg-gray-700 text-gray-300'
+          aria-label={copied ? 'Fields copied to clipboard' : 'Copy complaint fields to clipboard'}
+          className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors flex-shrink-0 border ${
+            copied
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-800'
+              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'
           }`}
         >
           {copied ? '✓ Copied' : 'Copy fields'}
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {rows.map(([label, value]) => (
-          <div key={label} className="bg-gray-950 rounded-lg px-3 py-2.5 border border-gray-800">
-            <span className="text-xs text-gray-500 block mb-0.5">{label}</span>
-            <span className="text-sm text-gray-100 font-medium">{value}</span>
+          <div key={label} className="bg-slate-50 dark:bg-slate-950 rounded-lg px-3 py-2.5 border border-slate-200 dark:border-slate-800">
+            <dt className="text-xs text-slate-400 dark:text-slate-500 mb-0.5">{label}</dt>
+            <dd className="text-sm text-slate-800 dark:text-slate-100 font-medium">{value}</dd>
           </div>
         ))}
-      </div>
+      </dl>
 
       <a
         href="https://www.dol.gov/agencies/whd/contact/complaints"
         target="_blank"
         rel="noreferrer"
-        className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-700 hover:bg-blue-600 rounded-xl text-sm font-semibold text-white transition-colors"
+        aria-label="File a complaint with the DOL Wage and Hour Division (opens in new tab)"
+        className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl text-sm font-semibold text-white transition-colors shadow-sm"
       >
         File Complaint with DOL Wage &amp; Hour Division →
       </a>
-    </div>
+    </section>
   )
 }

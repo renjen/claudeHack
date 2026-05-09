@@ -9,26 +9,31 @@ export default function FactsPanel({ facts }) {
   ].filter(([, v]) => v != null)
 
   return (
-    <div className="bg-gray-900 rounded-2xl p-5 flex flex-col gap-4 border border-gray-800">
-      <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Extracted Facts</span>
+    <section
+      aria-label="Extracted facts"
+      className="bg-white dark:bg-slate-900 rounded-2xl p-5 flex flex-col gap-4 border border-slate-200 dark:border-slate-800 shadow-sm"
+    >
+      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+        Extracted Facts
+      </span>
       {rows.length > 0 && (
-        <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-3">
           {rows.map(([label, value]) => (
             <div key={label} className="flex flex-col gap-0.5">
-              <div className="text-xs text-gray-500">{label}</div>
-              <div className="text-sm text-gray-100 font-medium">{String(value)}</div>
+              <dt className="text-xs text-slate-400 dark:text-slate-500">{label}</dt>
+              <dd className="text-sm text-slate-800 dark:text-slate-100 font-medium">{String(value)}</dd>
             </div>
           ))}
-        </div>
+        </dl>
       )}
       {facts.raw_claims?.length > 0 && (
-        <div className="border-t border-gray-800 pt-3 flex flex-col gap-1.5">
-          <div className="text-xs text-gray-500 uppercase tracking-wide font-semibold">Claims</div>
+        <div className="border-t border-slate-200 dark:border-slate-800 pt-3 flex flex-col gap-1.5">
+          <p className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wide font-semibold">Claims</p>
           {facts.raw_claims.map((c, i) => (
-            <p key={i} className="text-sm text-yellow-300 italic leading-snug">"{c}"</p>
+            <p key={i} className="text-sm text-amber-700 dark:text-amber-300 italic leading-snug">"{c}"</p>
           ))}
         </div>
       )}
-    </div>
+    </section>
   )
 }

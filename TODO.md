@@ -140,7 +140,7 @@
 ---
 
 ### Parallel Track B — Frontend / UX / Docs
-> React/JS only. No backend files touched.
+> React/JS only unless noted. No unrelated backend files touched.
 
 - [ ] **B1** Editable transcript step — insert editable textarea between Whisper output and `/extract`; new component + `frontend/src/App.jsx` *(LATER #5)*
 - [ ] **B2** PDF download — "Download PDF" button in `frontend/src/components/DemandLetter.jsx` using `jspdf` or `html2canvas` *(LATER #6)*
@@ -150,3 +150,25 @@
 - [ ] **B6** Login + "my cases" UI — consent screen + session view; `frontend/src/App.jsx` + new components *(LATER #9 — frontend half)*
 - [ ] **B7** Bias/fairness test scenarios — extend `scripts/test_scenarios.py` with multi-language + edge-case demographic prompts; evaluate output consistency
 - [ ] **B8** Organize FEATURES.md *(LATER #1)*
+
+#### Availability
+- [ ] **B9** Pipeline retry logic — wrap each `fetch` in `App.jsx` with 2-attempt exponential backoff (500ms → 1500ms); show "Retrying…" in the spinner label on attempt 2
+- [ ] **B10** Backend offline recovery — poll `/health` every 15s when status is `down`; auto-restore the nav status pill when it comes back online without a page reload
+
+#### Scalability
+- [ ] **B11** Audio file size cap — client-side 10 MB check in `VoiceRecorder.jsx` before POST to `/transcribe`; show inline error instead of sending oversized blob
+- [ ] **B12** Transcript length cap — cap textarea in `TextInput.jsx` at 5 000 chars with a live character counter; disable submit and show error above threshold
+- [ ] **B13** Bundle code-splitting — lazy-load `DemandLetter` and `DOLForm` with `React.lazy` + `Suspense` since they only render at end of pipeline; reduces initial JS parse time
+
+#### Security
+- [ ] **B14** Output sanitization — audit all places demand letter text touches the DOM; confirm no `dangerouslySetInnerHTML` path exists; strip HTML tags from letter string before render as a defense-in-depth measure
+- [ ] **B15** Content Security Policy — add `<meta http-equiv="Content-Security-Policy">` to `frontend/index.html` restricting scripts to `'self'` + `fonts.googleapis.com`; block inline scripts and `eval`
+- [ ] **B16** Clipboard PII warning — after copy in `DemandLetter.jsx` and `DOLForm.jsx`, show a 4s toast: "Copied — this document contains personal details. Store it securely."
+- [ ] **B17** HTTP warning banner — on mount in `App.jsx`, detect `window.location.protocol === 'http:'` + not localhost; render a dismissible red banner: "Connection is not secure. Use HTTPS before submitting real information."
+- [ ] **B22** Frontend input sanitization — before sending transcript to `/extract`, strip null bytes (` `), non-printable control characters (U+0001–U+001F except `\n\r\t`), and overly-long Unicode sequences from the text string in `App.jsx`; applies to both text input and Whisper-returned transcripts before any API call
+
+#### Backend security (needs Track A work — flagged here for visibility)
+- [ ] **B18** *(backend)* Server-side rate limiting — `slowapi` middleware on `/transcribe`, `/analyze`, `/generate-letter`: 10 req/min per IP; return 429 with `Retry-After` header; frontend surfaces this as a user-readable error
+- [ ] **B19** *(backend)* Audio size enforcement server-side — reject `Content-Length > 10 MB` in `/transcribe` before passing to Groq; client-side cap (B11) is UX, server-side is the real gate
+- [ ] **B20** *(backend)* Prompt injection guardrails — strip null bytes and control characters from transcript string before injecting into any Claude prompt; log (without content) when stripping occurs
+- [ ] **B21** *(backend)* CORS hardening — move `allow_origins` to `ALLOWED_ORIGINS` env var (default `localhost:5173`); in production, restrict to the deployed frontend domain only

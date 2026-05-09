@@ -17,7 +17,7 @@ export default function VoiceRecorder({ onTranscript }) {
       mediaRecorder.current.start()
       setState('recording')
     } catch {
-      setError('Microphone access denied.')
+      setError('Microphone access denied. Please allow microphone access and try again.')
       setState('error')
     }
   }
@@ -44,32 +44,41 @@ export default function VoiceRecorder({ onTranscript }) {
     }
   }
 
+  const isRecording = state === 'recording'
+  const isLoading = state === 'loading'
+
   return (
     <div className="flex flex-col items-center gap-4 py-2">
       <div className="relative">
-        {state === 'recording' && (
-          <span className="absolute inset-0 rounded-full bg-red-500 opacity-25 animate-ping" />
+        {isRecording && (
+          <span aria-hidden="true" className="absolute inset-0 rounded-full bg-red-500 opacity-20 animate-ping" />
         )}
         <button
-          onClick={state === 'recording' ? stopRecording : startRecording}
-          disabled={state === 'loading'}
-          className={`relative w-20 h-20 rounded-full flex items-center justify-center text-3xl transition-colors
-            ${state === 'recording' ? 'bg-red-600 hover:bg-red-700'
-            : state === 'loading'   ? 'bg-gray-700 cursor-not-allowed'
-            :                         'bg-blue-600 hover:bg-blue-700'}`}
+          onClick={isRecording ? stopRecording : startRecording}
+          disabled={isLoading}
+          aria-label={isRecording ? 'Stop recording' : isLoading ? 'Transcribing…' : 'Start recording'}
+          aria-pressed={isRecording}
+          className={`relative w-20 h-20 rounded-full flex items-center justify-center text-3xl transition-all shadow-lg
+            ${isRecording
+              ? 'bg-red-600 hover:bg-red-700 shadow-red-900/30 dark:shadow-red-900/50'
+              : isLoading
+              ? 'bg-slate-300 dark:bg-slate-700 cursor-not-allowed shadow-none'
+              : 'bg-blue-600 hover:bg-blue-700 hover:scale-105 shadow-blue-900/20 dark:shadow-blue-900/40'
+            }`}
         >
-          {state === 'recording'
-            ? '■'
-            : state === 'loading'
-            ? <span className="w-6 h-6 rounded-full border-2 border-white border-t-transparent animate-spin block" />
-            : '🎙'}
+          {isRecording
+            ? <span aria-hidden="true" className="text-white text-xl font-bold">■</span>
+            : isLoading
+            ? <span aria-hidden="true" className="w-6 h-6 rounded-full border-2 border-white border-t-transparent animate-spin block" />
+            : <span aria-hidden="true">🎙️</span>
+          }
         </button>
       </div>
-      <p className="text-xs text-center">
-        {state === 'idle' && <span className="text-gray-400">Tap to start recording — speak naturally</span>}
-        {state === 'recording' && <span className="text-red-400 font-medium">Recording… tap to stop</span>}
-        {state === 'loading' && <span className="text-gray-400">Transcribing with Whisper…</span>}
-        {state === 'error' && <span className="text-red-400">{error}</span>}
+      <p aria-live="polite" className="text-xs text-center min-h-[1.25rem]">
+        {state === 'idle'      && <span className="text-slate-500 dark:text-slate-400">Tap to start recording — speak naturally</span>}
+        {state === 'recording' && <span className="text-red-600 dark:text-red-400 font-medium">Recording… tap to stop</span>}
+        {state === 'loading'   && <span className="text-slate-500 dark:text-slate-400">Transcribing with Whisper…</span>}
+        {state === 'error'     && <span className="text-red-600 dark:text-red-400">{error}</span>}
       </p>
     </div>
   )
