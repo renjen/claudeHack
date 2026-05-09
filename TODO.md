@@ -12,8 +12,9 @@
 
 - [ ] **0.1** Create empty service files in `backend/`: `main.py`, `whisper_service.py`, `ner_service.py`, `rag_service.py`, `classifier.py`, `letter_service.py`, plus `backend/corpus/` directory
   - Verify: `ls backend/` shows all 6 .py files + `corpus/` + `requirements.txt`
-- [ ] **0.2** Create Python venv and install backend deps
-  - Run: `python -m venv .venv && .venv\Scripts\activate && pip install -r backend\requirements.txt`
+- [ ] **0.2** Create Python venv and install backend deps (using uv)
+  - Install uv if needed: `pip install uv`
+  - Run: `uv venv .venv && .venv\Scripts\activate && uv pip install -r backend\requirements.txt`
   - Verify: `python -c "import fastapi, anthropic, openai, groq, chromadb"` returns no error
 - [ ] **0.3** Implement minimal `backend/main.py`: FastAPI app, CORS for `http://localhost:5173`, `GET /health` returns `{"ok": true}`
   - Verify: `uvicorn backend.main:app --reload --port 8000` runs; `curl http://localhost:8000/health` returns `{"ok":true}`
