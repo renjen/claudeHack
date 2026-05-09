@@ -41,3 +41,6 @@
 | README quickstart | `built` | H+7 | `README.md` |
 | UI polish (typography, mobile) | `built` | H+7 | `frontend/src/App.jsx`, `frontend/src/components/` |
 | Demo script (2-min talking points) | `built` | H+7 | `DEMO.md` |
+| Output sanitization (B14) | `built` | B-track | `frontend/src/utils/sanitize.js`, `frontend/src/components/DemandLetter.jsx`, `frontend/src/components/DOLForm.jsx`, `frontend/src/components/ViolationBadge.jsx` |
+| Input sanitization / prompt injection guard (B22) | `built` | B-track | `frontend/src/utils/sanitize.js`, `frontend/src/App.jsx` |
+| Clipboard PII warning toast (B16) | `built` | B-track | `frontend/src/components/PiiToast.jsx`, `frontend/src/components/DemandLetter.jsx`, `frontend/src/components/DOLForm.jsx` |

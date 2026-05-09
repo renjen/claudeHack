@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { sanitizeTranscript } from './utils/sanitize'
 import VoiceRecorder from './components/VoiceRecorder'
 import TextInput from './components/TextInput'
 import TranscriptViewer from './components/TranscriptViewer'
@@ -124,9 +125,10 @@ export default function App() {
 
     try {
       setStep('extracting')
+      const cleanTranscript = sanitizeTranscript(data.transcript)
       const extractRes = await fetch(`${API}/extract`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transcript: data.transcript }),
+        body: JSON.stringify({ transcript: cleanTranscript }),
       })
       if (!extractRes.ok) throw new Error('Fact extraction failed')
       const factsData = await extractRes.json()

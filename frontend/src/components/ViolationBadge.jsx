@@ -25,6 +25,8 @@ const TYPE_LABEL = {
   other:             'Labor Violation',
 }
 
+import { stripHtml } from '../utils/sanitize'
+
 export default function ViolationBadge({ violation }) {
   const sev = SEVERITY[violation.severity] ?? SEVERITY.medium
 
@@ -53,17 +55,17 @@ export default function ViolationBadge({ violation }) {
           </span>
         </div>
 
-        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{violation.description}</p>
+        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{stripHtml(violation.description)}</p>
 
         {violation.relevant_law && (
           <div className="text-xs text-blue-700 dark:text-blue-300 font-mono bg-blue-50 dark:bg-blue-950/40 rounded-lg px-3 py-2.5 border border-blue-200 dark:border-blue-900/50">
-            {violation.relevant_law}
+            {stripHtml(violation.relevant_law)}
           </div>
         )}
 
         {violation.verbatim_citation && (
           <blockquote className="border-l-2 border-slate-300 dark:border-slate-700 pl-4 text-xs text-slate-500 dark:text-slate-400 italic leading-relaxed">
-            "{violation.verbatim_citation}"
+            "{stripHtml(violation.verbatim_citation)}"
           </blockquote>
         )}
 
@@ -72,7 +74,7 @@ export default function ViolationBadge({ violation }) {
             <p className="text-xs font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mb-1.5">
               Estimated Damages
             </p>
-            <p className="text-base font-bold text-emerald-800 dark:text-emerald-300">{violation.estimated_damages}</p>
+            <p className="text-base font-bold text-emerald-800 dark:text-emerald-300">{stripHtml(violation.estimated_damages)}</p>
           </div>
         )}
       </div>

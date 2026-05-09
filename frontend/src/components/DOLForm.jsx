@@ -1,7 +1,10 @@
 import { useState } from 'react'
+import { stripHtml } from '../utils/sanitize'
+import PiiToast from './PiiToast'
 
 export default function DOLForm({ prefill }) {
   const [copied, setCopied] = useState(false)
+  const [piiToast, setPiiToast] = useState(false)
 
   const rows = [
     ['Complainant',         prefill.complainant_name],
@@ -10,16 +13,20 @@ export default function DOLForm({ prefill }) {
     ['Est. Back Wages',     prefill.estimated_back_wages],
     ['Period of Violation', prefill.period_of_violation],
     ['FLSA Section',        prefill.flsa_section],
-  ].filter(([, v]) => v)
+  ].filter(([, v]) => v).map(([k, v]) => [k, stripHtml(v)])
 
   function copy() {
     const text = rows.map(([k, v]) => `${k}: ${v}`).join('\n')
     navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+    setPiiToast(true)
+    setTimeout(() => setPiiToast(false), 4000)
   }
 
   return (
+    <>
+    <PiiToast visible={piiToast} />
     <section
       aria-label="DOL complaint prefill"
       className="bg-white dark:bg-slate-900 rounded-2xl p-5 flex flex-col gap-4 border border-slate-200 dark:border-slate-800 shadow-sm"
@@ -65,5 +72,6 @@ export default function DOLForm({ prefill }) {
         File Complaint with DOL Wage &amp; Hour Division →
       </a>
     </section>
+    </>
   )
 }

@@ -239,3 +239,51 @@ def transcribe_audio(audio_bytes: bytes, content_type: str) -> dict:
 **Revisit if:**
 - Voice clips routinely exceed ~30 seconds (raise SpooledTemporaryFile threshold or stream)
 - We need to retry Groq calls (would need to hold bytes longer, but still in RAM)
+
+---
+
+### ADR-007 — Frontend Safety & Output Sanitization (AI Ethics Layer)
+**Date:** 2026-05-09 | **Status:** accepted
+
+**Context:**
+This app targets vulnerable workers — people who may be undocumented, unfamiliar with legal systems, or under employer pressure. Every output the app surfaces touches real harm: a malformed letter could cost a worker their case; a leaked document could expose them to retaliation. As a Claude Hackathon submission with Track 1's AI ethics focus, these mitigations are first-class design decisions, not afterthoughts.
+
+**Decisions and Rationale:**
+
+**1. Output sanitization (`frontend/src/utils/sanitize.js`)**
+All strings returned by the backend (demand letter, DOL prefill fields, violation descriptions, law citations) pass through `stripHtml()` before render. React's JSX interpolation already prevents XSS, but the strip is a defense-in-depth measure: if any upstream change (SSR, future `innerHTML` path, copy-to-clipboard) bypasses React's escaping, injected HTML is already gone.
+
+*Ethics angle:* The backend is Claude-generated text. LLMs can be prompted to produce strings containing HTML. A worker pasting their demand letter into a third-party service could trigger injected payloads. Stripping at render time closes this regardless of prompt behavior.
+
+**2. Input sanitization (B22, `App.jsx`)**
+Transcripts (both Whisper-returned and typed) are stripped of null bytes and non-printable control characters before any API call. This prevents prompt injection via the transcript — an attacker-controlled employer could attempt to insert control characters into a voice recording to manipulate the Claude prompt.
+
+*Ethics angle:* Workers rely on the app's output as legal information. Prompt injection that manipulates a violation finding or demand letter is a direct attack on that reliance. Sanitation at the input boundary is the first line of defense before the transcript reaches any model.
+
+**3. Clipboard PII warning (B16)**
+4-second toast shown after copy in `DemandLetter` and `DOLForm`: "Copied — this document contains personal details. Store it securely." Workers may be copying this onto shared devices, work computers, or public kiosks.
+
+*Ethics angle:* A demand letter naming the employer and worker in a wage claim is a sensitive legal document. The app cannot control where it goes once copied, but it must at least prompt the user to handle it safely.
+
+**4. HTTP warning banner (B17)**
+Red dismissible banner when `window.location.protocol === 'http:'` and host is not localhost. Legal claims, employer names, and worker facts should not travel over plaintext.
+
+*Ethics angle:* The population most likely to use this tool — workers with limited technical literacy — are least likely to notice they're on HTTP. The app must proactively flag this risk in plain language, not silently.
+
+**5. Retry + size caps (B9, B11, B12)**
+Pipeline retries with exponential backoff prevent transient failures from silently dropping a case mid-pipeline. Audio and transcript size caps prevent the app from hanging or crashing with no feedback — which for a worker mid-explanation would appear as the app ignoring them.
+
+*Ethics angle:* Reliability is an equity issue. A worker who records a 90-second testimony and gets a blank screen has been failed. Explicit bounds + clear error messages maintain dignity in failure states.
+
+**Overall ethical posture:**
+The app produces *legal information* (not legal advice). Every output mitigation above protects the integrity of that information: ensuring it is not corrupted by injection, not exposed through insecure channels, and not silently dropped on failure. For workers who have no other recourse, the accuracy and safety of this tool's output is not a feature — it is the product.
+
+**Consequences:**
+- `stripHtml` adds negligible runtime cost
+- Input sanitization runs once per pipeline trigger
+- Warnings are dismissible and don't block core flow
+- All mitigations are auditable in `frontend/src/utils/sanitize.js` and `App.jsx`
+
+**Revisit if:**
+- App moves to SSR (Next.js) — re-audit all render paths for `dangerouslySetInnerHTML`
+- Letter output requires rich formatting — would need a whitelist-based sanitizer (e.g., DOMPurify) instead of strip-all

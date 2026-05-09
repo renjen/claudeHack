@@ -1,15 +1,23 @@
 import { useState } from 'react'
+import { stripHtml } from '../utils/sanitize'
+import PiiToast from './PiiToast'
 
 export default function DemandLetter({ letter }) {
+  const safeLetterText = stripHtml(letter)
   const [copied, setCopied] = useState(false)
+  const [piiToast, setPiiToast] = useState(false)
 
   function copy() {
-    navigator.clipboard.writeText(letter)
+    navigator.clipboard.writeText(safeLetterText)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+    setPiiToast(true)
+    setTimeout(() => setPiiToast(false), 4000)
   }
 
   return (
+    <>
+    <PiiToast visible={piiToast} />
     <section
       aria-label="Demand letter"
       className="bg-white dark:bg-slate-900 rounded-2xl p-5 flex flex-col gap-3 border border-slate-200 dark:border-slate-800 shadow-sm"
@@ -36,8 +44,9 @@ export default function DemandLetter({ letter }) {
         </button>
       </div>
       <pre className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed font-sans bg-slate-50 dark:bg-slate-950 rounded-xl p-4 max-h-96 overflow-y-auto border border-slate-200 dark:border-slate-800">
-        {letter}
+        {safeLetterText}
       </pre>
     </section>
+    </>
   )
 }

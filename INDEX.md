@@ -94,7 +94,9 @@ INDEX.md is assumed loaded at session start. Re-read only if registry changed.
 | `frontend/src/components/ViolationBadge.jsx` | Violation type/severity/citation/damages card |
 | `frontend/src/components/DemandLetter.jsx` | Full letter with copy button |
 | `frontend/src/components/DOLForm.jsx` | DOL prefill fields + copy + filing link |
+| `frontend/src/components/PiiToast.jsx` | Fixed-position 4s PII warning toast shown after copy |
 | `frontend/package.json` | Vite + React + Tailwind deps |
+| `frontend/src/utils/sanitize.js` | `stripHtml` (output sanitization) + `sanitizeTranscript` (input sanitization before Claude prompts) |
 
 ### Scripts (`scripts/`)
 | File | Purpose |

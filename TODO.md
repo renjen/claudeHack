@@ -148,7 +148,7 @@
 - [x] **B22** Frontend input sanitization — before sending transcript to `/extract`, strip null bytes, non-printable control characters (U+0001–U+001F except `\n\r\t`), and overly-long Unicode sequences from the text string in `App.jsx`; applies to both text input and Whisper-returned transcripts before any API call
 
 #### User Safety
-- [ ] **B16** Clipboard PII warning — after copy in `DemandLetter.jsx` and `DOLForm.jsx`, show a 4s toast: "Copied — this document contains personal details. Store it securely."
+- [x] **B16** Clipboard PII warning — after copy in `DemandLetter.jsx` and `DOLForm.jsx`, show a 4s toast: "Copied — this document contains personal details. Store it securely."
 - [ ] **B17** HTTP warning banner — on mount in `App.jsx`, detect `window.location.protocol === 'http:'` + not localhost; render a dismissible red banner: "Connection is not secure. Use HTTPS before submitting real information."
 
 #### Availability / Reliability
