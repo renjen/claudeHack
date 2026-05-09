@@ -216,3 +216,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+### OTHER ###
+CLAUDE_MD_REFERENCE.md
