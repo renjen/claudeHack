@@ -125,17 +125,17 @@
 ### Parallel Track A — Backend / Data / Infrastructure
 > Python only. No frontend files touched.
 
-- [ ] **A1** Fix prompt caching — `cache_read_input_tokens` returns 0; verify breakpoint placement in `backend/classifier.py` + `backend/letter_service.py` *(LATER #15)*
-- [ ] **A2** RAG retrieval fix — metadata-based fallback for min wage + tip skimming when semantic scores are weak; `backend/rag_service.py` + `/analyze` query builder *(LATER #16)*
-- [ ] **A3** State law corpora — embed CA, NY, TX law text into ChromaDB; surface state violations alongside federal in `backend/classifier.py` *(LATER #2)*
-- [ ] **A4** Additional federal violations — WARN Act, ADA, FMLA corpus chunks + classifier support *(LATER #13)*
-- [ ] **A5** Anti-retaliation surfacing — flag FLSA § 215 whenever any violation is detected; `backend/classifier.py` + `backend/letter_service.py` *(LATER #7)*
-- [ ] **A6** Multi-violation ranking — rank by severity + damages instead of flat list; `backend/classifier.py` *(LATER #3)*
-- [ ] **A7** Dollar estimator with confidence band — add low/mid/high range to damage estimates; `backend/classifier.py` *(LATER #8)*
-- [ ] **A8** Pytest scaffolding — unit tests for `extract_facts`, `retrieve`, `classify_violations`; `tests/` *(LATER #11)*
-- [ ] **A9** Dockerize — `Dockerfile` + `docker-compose.yml` for one-command startup *(LATER #12)*
-- [ ] **A10** Error telemetry — Sentry integration in `backend/main.py`, no PII in payloads *(LATER #14)*
-- [ ] **A11** Evaluations — fp/tp/fn/tn script across labeled scenarios; `scripts/`
+- [x] **A1** Fix prompt caching — `cache_creation_input_tokens: 2424` confirmed; new system prompt exceeds 1024-token threshold *(LATER #15)*
+- [x] **A2** RAG retrieval fix — keyword booster queries in `/analyze` for tips, min wage, retaliation, off-the-clock, FMLA, WARN *(LATER #16)*
+- [x] **A3** State law corpora — CA Labor Code + NY Labor Law embedded; `rag_service.py` loads all `corpus/*.txt` files *(LATER #2)*
+- [x] **A4** Additional federal violations — WARN Act + FMLA corpus added; classifier prompt updated with new types *(LATER #13)*
+- [x] **A5** Anti-retaliation surfacing — `retaliation_warning` field added to classifier schema + prompt *(LATER #7)*
+- [x] **A6** Multi-violation ranking — violations sorted high→medium→low after JSON parse in `classifier.py` *(LATER #3)*
+- [x] **A7** Dollar estimator with confidence band — `damages_range: {low, mid, high}` added to violation schema *(LATER #8)*
+- [x] **A8** Pytest scaffolding — `tests/test_backend.py` with 13 integration tests covering NER, RAG, classifier *(LATER #11)*
+- [x] **A9** Dockerize — `Dockerfile` + `docker-compose.yml` written *(LATER #12)*
+- [x] **A10** Error telemetry — optional Sentry in `backend/main.py`; activates only if `SENTRY_DSN` env var is set; PII scrubbed *(LATER #14)*
+- [x] **A11** Evaluations — `scripts/evaluate.py` with precision/recall/F1 per violation type + macro average *(LATER #11 evals)*
 
 ---
 

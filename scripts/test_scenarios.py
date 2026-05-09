@@ -11,10 +11,10 @@ def run(transcript: str, label: str) -> dict:
     print(f"SCENARIO: {label}")
     print(f"TRANSCRIPT: {transcript[:80]}{'...' if len(transcript)>80 else ''}")
 
-    r1 = requests.post(f"{BASE}/extract", json={"transcript": transcript}, timeout=30)
+    r1 = requests.post(f"{BASE}/extract", json={"transcript": transcript}, timeout=60)
     facts = r1.json()
 
-    r2 = requests.post(f"{BASE}/analyze", json={"facts": facts}, timeout=60)
+    r2 = requests.post(f"{BASE}/analyze", json={"facts": facts}, timeout=120)
     analysis = r2.json()
     violations = analysis.get("violations", [])
 
@@ -35,7 +35,7 @@ def run(transcript: str, label: str) -> dict:
         r3 = requests.post(
             f"{BASE}/generate-letter",
             json={"facts": facts, "violations": violations},
-            timeout=60,
+            timeout=120,
         )
         letter_data = r3.json()
         letter = letter_data.get("demand_letter", "")

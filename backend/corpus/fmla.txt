@@ -1,0 +1,45 @@
+FAMILY AND MEDICAL LEAVE ACT OF 1993 (FMLA)
+29 U.S.C. §§ 2601–2654
+Jurisdiction: Federal
+
+SECTION 2601 — FINDINGS AND PURPOSES
+29 U.S.C. § 2601
+
+(a) Findings. Congress finds that— (1) the number of single-parent households and two-parent households in which the single parent or both parents work is increasing significantly; (2) it is important for the development of children and the family unit that fathers and mothers be able to participate in early childrearing and the care of family members who have serious health conditions; (3) the lack of employment policies to accommodate working parents can force individuals to choose between job security and parenting; (4) there is inadequate job security for employees who have serious health conditions that prevent them from working for temporary periods; (5) due to the nature of the roles of men and women in our society, the primary responsibility for family caretaking often falls on women, and such responsibility affects the working lives of women more than it affects the working lives of men; and (6) employment standards that apply to one gender only have serious potential for encouraging employers to discriminate against employees and applicants for employment who are of that gender.
+
+SECTION 2611 — DEFINITIONS AND COVERAGE
+29 U.S.C. § 2611
+
+As used in this subchapter— (2)(A) the term "eligible employee" means an employee who has been employed— (i) for at least 12 months by the employer with respect to whom leave is requested under section 2612 of this title; and (ii) for at least 1,250 hours of service with such employer during the previous 12-month period.
+
+(4)(A) the term "employer"— (i) means any person engaged in commerce or in any industry or activity affecting commerce who employs 50 or more employees for each working day during each of 20 or more calendar workweeks in the current or preceding calendar year.
+
+(11) the term "serious health condition" means an illness, injury, impairment, or physical or mental condition that involves— (A) inpatient care in a hospital, hospice, or residential medical care facility; or (B) continuing treatment by a health care provider.
+
+SECTION 2612 — LEAVE ENTITLEMENT
+29 U.S.C. § 2612
+
+(a) In general. (1) Entitlement to leave. Subject to section 2613 of this title, an eligible employee shall be entitled to a total of 12 workweeks of leave during any 12-month period for one or more of the following: (A) Because of the birth of a son or daughter of the employee and in order to care for such son or daughter. (B) Because of the placement of a son or daughter with the employee for adoption or foster care. (C) In order to care for the spouse, or a son, daughter, or parent, of the employee, if such spouse, son, daughter, or parent has a serious health condition. (D) Because of a serious health condition that makes the employee unable to perform the functions of the position of such employee. (E) Because of any qualifying exigency (as the Secretary shall, by regulation, determine) arising out of the fact that the spouse, or a son, daughter, or parent of the employee is on covered active duty (or has been notified of an impending call or order to covered active duty) in the Armed Forces.
+
+(2) Intermittent leave or reduced leave schedule. Leave under subparagraph (C) or (D) of paragraph (1) may be taken intermittently or on a reduced leave schedule when medically necessary.
+
+SECTION 2614 — EMPLOYMENT AND BENEFITS PROTECTION
+29 U.S.C. § 2614
+
+(a) Restoration to position. (1) In general. Except as provided in subsection (b), any eligible employee who takes leave under section 2612 of this title for the intended purpose of the leave shall be entitled, on return from such leave— (A) to be restored by the employer to the position of employment held by the employee when the leave commenced; or (B) to be restored to an equivalent position with equivalent employment benefits, pay, and other terms and conditions of employment.
+
+(2) Loss of benefits. The taking of leave under section 2612 of this title shall not result in the loss of any employment benefit accrued prior to the date on which the leave commenced.
+
+(c) Maintenance of health benefits. (1) Coverage. Except as provided in paragraph (2), during any period that an eligible employee takes leave under section 2612 of this title, the employer shall maintain coverage under any group health plan (as defined in section 5000(b)(1) of title 26) for the duration of such leave at the level and under the conditions coverage would have been provided if the employee had continued in employment continuously for the duration of such leave.
+
+SECTION 2615 — PROHIBITED ACTS
+29 U.S.C. § 2615
+
+(a) Exercise of rights. (1) It shall be unlawful for any employer to interfere with, restrain, or deny the exercise of or the attempt to exercise, any right provided under this subchapter. (2) It shall be unlawful for any employer to discharge or in any other manner discriminate against any individual for opposing any practice made unlawful by this subchapter.
+
+(b) Interference with proceedings or inquiries. It shall be unlawful for any person to discharge or in any other manner discriminate against any individual because such individual— (1) has filed any charge, or has instituted or caused to be instituted any proceeding, under or related to this subchapter; (2) has given, or is about to give, any information in connection with any inquiry or proceeding relating to any right provided under this subchapter; or (3) has testified, or is about to testify, in any inquiry or proceeding relating to any right provided under this subchapter.
+
+SECTION 2617 — CIVIL ACTION BY EMPLOYEES
+29 U.S.C. § 2617
+
+(a) Civil action. (1) Liability. Any employer who violates section 2615 of this title shall be liable to any eligible employee affected— (A) for damages equal to— (i) the amount of— (I) any wages, salary, employment benefits, or other compensation denied or lost to such employee by reason of the violation; or (II) in a case in which wages, salary, employment benefits, or other compensation have not been denied or lost to the employee, any actual monetary losses sustained by the employee as a direct result of the violation, such as the cost of providing care, up to a sum equal to 12 weeks (or 26 weeks, in a case involving leave under section 2612(a)(3) of this title) of wages or salary for the employee; (ii) the interest on the amount described in clause (i) calculated at the prevailing rate; and (iii) an additional amount as liquidated damages equal to the sum of the amount described in clause (i) and the interest described in clause (ii), except that if an employer who has violated section 2615 of this title proves to the satisfaction of the court that the act or omission which violated section 2615 of this title was in good faith and that the employer had reasonable grounds for believing that the act or omission was not a violation of section 2615 of this title, such court may, in the discretion of the court, reduce the amount of the liability to the amount and interest determined under clauses (i) and (ii), respectively; and (B) for such equitable relief as may be appropriate, including employment, reinstatement, and promotion.
