@@ -23,6 +23,7 @@ Return ONLY valid JSON matching this exact schema — no markdown, no explanatio
 Rules:
 - Never hallucinate values not present in the transcript
 - If a field cannot be determined, use null
+- employer_name: extract the business name only, not the business type (e.g. "FreshMart" not "FreshMart grocery store", "Sparkle Auto" not "Sparkle Auto car wash")
 - raw_claims must be verbatim quotes or close paraphrases from the transcript
 - employment_type defaults to "unknown" if unclear"""
 

@@ -17,7 +17,7 @@ export default function VoiceRecorder({ onTranscript }) {
       mediaRecorder.current.start()
       setState('recording')
     } catch {
-      setError('Mic access denied.')
+      setError('Microphone access denied.')
       setState('error')
     }
   }
@@ -45,27 +45,30 @@ export default function VoiceRecorder({ onTranscript }) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-3">
-      {state === 'recording' ? (
+    <div className="flex flex-col items-center gap-4 py-2">
+      <div className="relative">
+        {state === 'recording' && (
+          <span className="absolute inset-0 rounded-full bg-red-500 opacity-25 animate-ping" />
+        )}
         <button
-          onClick={stopRecording}
-          className="w-20 h-20 rounded-full bg-red-600 hover:bg-red-700 flex items-center justify-center text-white text-3xl animate-pulse"
-        >
-          ■
-        </button>
-      ) : (
-        <button
-          onClick={startRecording}
+          onClick={state === 'recording' ? stopRecording : startRecording}
           disabled={state === 'loading'}
-          className="w-20 h-20 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center text-white text-3xl"
+          className={`relative w-20 h-20 rounded-full flex items-center justify-center text-3xl transition-colors
+            ${state === 'recording' ? 'bg-red-600 hover:bg-red-700'
+            : state === 'loading'   ? 'bg-gray-700 cursor-not-allowed'
+            :                         'bg-blue-600 hover:bg-blue-700'}`}
         >
-          {state === 'loading' ? '…' : '🎙'}
+          {state === 'recording'
+            ? '■'
+            : state === 'loading'
+            ? <span className="w-6 h-6 rounded-full border-2 border-white border-t-transparent animate-spin block" />
+            : '🎙'}
         </button>
-      )}
-      <p className="text-xs text-gray-400">
-        {state === 'idle' && 'Click to record'}
-        {state === 'recording' && 'Recording — click to stop'}
-        {state === 'loading' && 'Transcribing…'}
+      </div>
+      <p className="text-xs text-center">
+        {state === 'idle' && <span className="text-gray-400">Tap to start recording — speak naturally</span>}
+        {state === 'recording' && <span className="text-red-400 font-medium">Recording… tap to stop</span>}
+        {state === 'loading' && <span className="text-gray-400">Transcribing with Whisper…</span>}
         {state === 'error' && <span className="text-red-400">{error}</span>}
       </p>
     </div>

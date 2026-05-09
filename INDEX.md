@@ -58,7 +58,8 @@ INDEX.md is assumed loaded at session start. Re-read only if registry changed.
 | `DESIGN.md` | All architectural decisions (ADRs) |
 | `FEATURES.md` | Features, status, related files |
 | `TEST.md` | Per-module / per-stage testing guide |
-| `README.md` | Quickstart (populated at H+7) |
+| `README.md` | Quickstart — setup, run, API reference |
+| `DEMO.md` | 2-min timed demo script + fallback instructions |
 | `.env.example` | Template for API keys |
 
 ### Tests (`tests/`)

@@ -38,6 +38,6 @@
 | DOLForm component | `built` | H+5 | `frontend/src/components/DOLForm.jsx` |
 | End-to-end Spanish demo path | `built` | H+6 | `scripts/test_scenarios.py`, `tests/fixtures/demo_es_overtime.mp3` |
 | Robust JSON extraction (all services) | `built` | H+6 | `backend/ner_service.py`, `backend/classifier.py`, `backend/letter_service.py` |
-| README quickstart | `planned` | H+7 | `README.md` |
-| UI polish (typography, mobile) | `planned` | H+7 | `frontend/src/App.jsx`, `frontend/src/components/` |
-| Demo script (2-min talking points) | `planned` | H+7 | `DEMO.md` |
+| README quickstart | `built` | H+7 | `README.md` |
+| UI polish (typography, mobile) | `built` | H+7 | `frontend/src/App.jsx`, `frontend/src/components/` |
+| Demo script (2-min talking points) | `built` | H+7 | `DEMO.md` |

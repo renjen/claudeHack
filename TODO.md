@@ -76,21 +76,21 @@
 
 #### H+7 — Polish + demo prep
 
-- [ ] **7.1** UI polish: typography, spacing, color palette, mobile breakpoint
+- [x] **7.1** UI polish: typography, spacing, color palette, mobile breakpoint
   - Verify: looks good on 1080p laptop and on phone width
-- [ ] **7.2** Write `README.md` quickstart: setup, run backend, run frontend, .env keys
+- [x] **7.2** Write `README.md` quickstart: setup, run backend, run frontend, .env keys
   - Verify: a stranger could follow it and run the app
-- [ ] **7.3** Write 2-min demo script (talking points + timed actions)
+- [x] **7.3** Write 2-min demo script (talking points + timed actions) → `DEMO.md`
   - Verify: timed run-through stays under 2:00
 - [ ] **7.4** Pre-record fallback demo video as backup if live mic fails
   - Verify: video plays without audio glitches
 
 #### H+8 — Buffer / final QA
 
-- [ ] **8.1** Run all 5 demo scenarios from `TEST.md` once more
-  - Verify: all 5 produce correct violation + citation
-- [ ] **8.2** PII audit: search backend folder for audio files; search logs for transcripts/employer names
-  - Verify: clean — see `TEST.md` PII Tests
+- [x] **8.1** Run all 5 demo scenarios from `TEST.md` once more
+  - Verify: 5/5 PASS — fixed off_the_clock FAIL (NER was extracting "FreshMart grocery store" instead of "FreshMart"; fixed NER prompt + test check)
+- [x] **8.2** PII audit: search backend folder for audio files; search logs for transcripts/employer names
+  - Verify: CLEAN — no audio in tempdir, no log files, no PII in source print/log calls
 
 ---
 
@@ -119,3 +119,34 @@
 - login system, collect minimal data, and then maybe provide a different level of helpfulness to different age groups? or help at different levels? if that makes sense
 - Connect them to a reputable lawyer line if the llm choose to add the "consult a lawyer" disclaimer (must)
 - evaluations -- fp/tp/fn/tn, etc
+
+---
+
+### Parallel Track A — Backend / Data / Infrastructure
+> Python only. No frontend files touched.
+
+- [ ] **A1** Fix prompt caching — `cache_read_input_tokens` returns 0; verify breakpoint placement in `backend/classifier.py` + `backend/letter_service.py` *(LATER #15)*
+- [ ] **A2** RAG retrieval fix — metadata-based fallback for min wage + tip skimming when semantic scores are weak; `backend/rag_service.py` + `/analyze` query builder *(LATER #16)*
+- [ ] **A3** State law corpora — embed CA, NY, TX law text into ChromaDB; surface state violations alongside federal in `backend/classifier.py` *(LATER #2)*
+- [ ] **A4** Additional federal violations — WARN Act, ADA, FMLA corpus chunks + classifier support *(LATER #13)*
+- [ ] **A5** Anti-retaliation surfacing — flag FLSA § 215 whenever any violation is detected; `backend/classifier.py` + `backend/letter_service.py` *(LATER #7)*
+- [ ] **A6** Multi-violation ranking — rank by severity + damages instead of flat list; `backend/classifier.py` *(LATER #3)*
+- [ ] **A7** Dollar estimator with confidence band — add low/mid/high range to damage estimates; `backend/classifier.py` *(LATER #8)*
+- [ ] **A8** Pytest scaffolding — unit tests for `extract_facts`, `retrieve`, `classify_violations`; `tests/` *(LATER #11)*
+- [ ] **A9** Dockerize — `Dockerfile` + `docker-compose.yml` for one-command startup *(LATER #12)*
+- [ ] **A10** Error telemetry — Sentry integration in `backend/main.py`, no PII in payloads *(LATER #14)*
+- [ ] **A11** Evaluations — fp/tp/fn/tn script across labeled scenarios; `scripts/`
+
+---
+
+### Parallel Track B — Frontend / UX / Docs
+> React/JS only. No backend files touched.
+
+- [ ] **B1** Editable transcript step — insert editable textarea between Whisper output and `/extract`; new component + `frontend/src/App.jsx` *(LATER #5)*
+- [ ] **B2** PDF download — "Download PDF" button in `frontend/src/components/DemandLetter.jsx` using `jspdf` or `html2canvas` *(LATER #6)*
+- [ ] **B3** Spanish UI — i18n all component labels + status text; detect browser language and switch *(LATER #10)*
+- [ ] **B4** Lawyer referral CTA — "Connect with a lawyer" call-to-action when disclaimer renders; new component *(LATER: connect)*
+- [ ] **B5** Streaming UX — update `frontend/src/App.jsx` to consume SSE so analysis streams word-by-word instead of appearing all at once *(LATER #4 — frontend half)*
+- [ ] **B6** Login + "my cases" UI — consent screen + session view; `frontend/src/App.jsx` + new components *(LATER #9 — frontend half)*
+- [ ] **B7** Bias/fairness test scenarios — extend `scripts/test_scenarios.py` with multi-language + edge-case demographic prompts; evaluate output consistency
+- [ ] **B8** Organize FEATURES.md *(LATER #1)*

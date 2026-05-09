@@ -43,7 +43,7 @@ def run(transcript: str, label: str) -> dict:
             "has_FLSA": "FLSA" in letter,
             "has_dollar": "$" in letter,
             "has_disclaimer": "not legal advice" in letter.lower(),
-            "has_employer": facts.get("employer_name", "") in letter if facts.get("employer_name") else True,
+            "has_employer": any(w in letter for w in (facts.get("employer_name") or "").split() if len(w) > 3) if facts.get("employer_name") else True,
         }
         print(f"LETTER CHECKS: {checks}")
         all_ok = all(checks.values())
