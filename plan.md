@@ -1,5 +1,117 @@
 # Wage Theft Watchdog — Claude Code Build Plan
 
+> The build plan below (from §"Project overview" onward) is the source of truth for *what to build*.
+> The "RECONCILIATION & OPTIMIZATIONS" section below resolves conflicts between this plan and `CLAUDE.md` / `INDEX.md`, plus optimizations to bake in before coding starts.
+
+---
+
+# RECONCILIATION & OPTIMIZATIONS
+
+## A. Conflicts Between PLAN.md ↔ CLAUDE.md / INDEX.md
+
+| # | Topic | PLAN.md says | CLAUDE.md / INDEX.md says | Resolution |
+|---|-------|--------------|---------------------------|------------|
+| 1 | Folder structure | `wage-theft-watchdog/backend/main.py` (flat) | `src/backend/api/`, `src/backend/ml/`, `src/backend/rag/`, `src/agents/` (nested) | **Keep PLAN.md flat structure.** Faster for an 8-hour build. Nested structure was over-engineered. Update CLAUDE.md + INDEX.md folder map. |
+| 2 | Frontend | React + Vite + Tailwind | Next.js | **Use Vite + React + Tailwind.** Lighter, no SSR needed for demo, faster dev server. Update CLAUDE.md stack line. |
+| 3 | Whisper | OpenAI `whisper-1` API | unspecified | **Use Groq `whisper-large-v3-turbo`.** $0.04/hr vs OpenAI's $0.006/min ≈ same price, but Groq is ~10x faster (matters for live demo). If Groq key is a problem → fall back to OpenAI Whisper API (PLAN.md original). Never local Whisper on Windows. |
+| 4 | Embeddings | OpenAI `text-embedding-3-small` | unspecified | **Stick with `text-embedding-3-small`.** Voyage `voyage-law-2` would be slightly better on legal text but adds another API key for marginal gain. Not worth it. |
+| 5 | NER implementation | Claude (single Sonnet for everything) | spaCy NER (in CLAUDE.md stack line) | **Drop spaCy from CLAUDE.md.** PLAN.md is correct — Claude with structured JSON output. Use **Haiku 4.5** here, not Sonnet (cost cut). |
+| 6 | Violation classifier | Claude (Sonnet) | "Custom classifier" implied | **Claude Sonnet 4.6 with structured JSON.** PLAN.md is correct. Update CLAUDE.md/INDEX.md to remove "classifier" implying a separate ML model. |
+| 7 | LangChain | Not used | Listed in CLAUDE.md stack | **Drop LangChain from CLAUDE.md.** ChromaDB Python client directly. |
+| 8 | `docs/citations/` folder | N/A | Exists in INDEX.md | **Drop it.** Merge into `backend/corpus/`. PLAN.md uses `corpus/` directly — simpler. |
+| 9 | Build hours | 7 hours | 8 hours | **Use 8 hours** (matches user statement). Add 1 hour buffer at H+7 for demo polish. |
+| 10 | Model ID | `claude-sonnet-4-20250514` (outdated) | unspecified | **Use `claude-sonnet-4-6` and `claude-haiku-4-5`** — current model IDs. PLAN.md model ID is stale. |
+
+---
+
+## B. Optimizations to Bake In Before Coding
+
+### B.1 Model tiering (cost cut)
+| Stage | Model | Why |
+|-------|-------|-----|
+| `/transcribe` | Groq Whisper API | 10x faster than OpenAI, similar cost |
+| `/extract` (NER) | **Haiku 4.5** | Structured extraction, ~10x cheaper than Sonnet, fast |
+| `/analyze` (RAG + classify) | **Sonnet 4.6** + prompt caching | Legal reasoning is the product — quality matters |
+| `/generate-letter` | **Sonnet 4.6** | User-facing output — quality matters |
+
+### B.2 Prompt caching (mandatory)
+- The retrieved FLSA chunks + system prompt for `/analyze` and `/generate-letter` should be cached
+- Cache breakpoint placement: after retrieved law chunks, before the worker's specific facts
+- Expected savings: ~90% on repeat demo runs (judges will hammer the same flow)
+
+### B.3 Max-token caps (in code, not prompts)
+- `/extract`: `max_tokens=500`
+- `/analyze`: `max_tokens=1500`
+- `/generate-letter`: `max_tokens=2000`
+
+### B.4 Pipeline stays at 5 separated stages (per user direction)
+Each stage = independent FastAPI endpoint with clear input/output contract. Debuggable in isolation. Implementation is simplified (Claude API calls instead of training spaCy/classifiers), but stages stay separate.
+
+```
+/transcribe → /extract → /analyze (= RAG + classify in 1 endpoint) → /generate-letter
+```
+
+Note: PLAN.md §"FastAPI app" already has `/analyze` doing RAG + classify in one endpoint. That's fine — RAG and classification share the same Claude call (retrieved chunks become context for the classifier). They're logically coupled. Splitting them would mean two Claude calls back-to-back with the same context, which is wasteful.
+
+### B.5 Ethics / PII rules (currently missing from CLAUDE.md)
+- Voice recordings: process in memory only, never write to disk
+- Transcripts: never log to a file or external service
+- Employer names: never sent to analytics or telemetry
+- Add explicit `# DO NOT LOG` comments at boundary functions
+
+### B.6 Git policy for hackathon speed
+- Squash-style commits OK: `scaffold backend`, `wire whisper`, `RAG working`, `demo polish`
+- Don't bikeshed messages
+- Push to `main` directly (no branches for an 8-hour solo-pair build)
+- Never add `Co-Authored-By` lines
+
+---
+
+## C. Files to Add (currently missing)
+
+| File | Purpose | When |
+|------|---------|------|
+| `.env.example` | Template for `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GROQ_API_KEY` | H+0 |
+| `backend/requirements.txt` | Pinned Python deps | H+0 |
+| `frontend/package.json` | Vite + React deps | H+0 |
+| `README.md` quickstart | How to run locally | H+7 (last hour) |
+
+---
+
+## D. Files to Update Once Plan Is Approved
+
+| File | Changes |
+|------|---------|
+| `CLAUDE.md` | Drop LangChain. Drop spaCy. Drop `docs/citations/`. Update stack to Vite+React. Add model tiering rule. Add prompt caching rule. Add PII rule. Add max-token caps. Update folder map to flat structure. |
+| `INDEX.md` | Update folder map. Drop nested `src/backend/api/ml/rag/agents/` structure. Update file registry to match PLAN.md flat layout. Add 8-hour milestone timeline. Add status enum reference. Drop "violation classifier" as separate component (it's part of `/analyze`). |
+| `DESIGN.md` | Add ADR template. Add ADRs for: stack choices (B.1), prompt caching strategy (B.2), pipeline stage boundaries (B.4), PII handling (B.5). |
+| `FEATURES.md` | Add status enum (`planned / in-progress / built / broken`). Pre-populate rows for the 5 stages. |
+
+---
+
+## E. Open Questions for You
+
+1. **Groq API key** — do you have one? If not, fall back to OpenAI Whisper API (PLAN.md original).
+2. **Frontend stack** — confirm Vite + React + Tailwind (not Next.js)?
+3. **State coverage** — start with FLSA federal only, then add CA + NY + TX state laws if time? Or federal-only for the demo?
+4. **Persistence** — confirm: zero persistence, in-memory only, no DB? (recommended for PII reasons)
+5. **Demo language pair** — Spanish → English the primary demo? Worth pre-recording a clip in case live mic fails on demo day.
+
+---
+
+## F. Order of Execution Once Approved
+
+1. Update `CLAUDE.md` (changes from §D)
+2. Update `INDEX.md` (changes from §D)
+3. Add ADR template + first 4 ADRs to `DESIGN.md`
+4. Initialize `FEATURES.md` with status enum + pre-populated stage rows
+5. Create `.env.example`, `backend/requirements.txt`, `frontend/package.json`
+6. Begin H+0 build per existing PLAN.md "Build order" §
+
+---
+
+# ORIGINAL BUILD PLAN (source of truth for what to build)
+
 ## Project overview
 
 A voice-first web app that helps workers (especially non-English speakers) identify wage theft violations and generate a formal demand letter + DOL complaint pre-fill — in under 60 seconds.
