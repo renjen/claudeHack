@@ -160,3 +160,82 @@ Removes legal/ethical risk surface. Worker confidence in tool. Simpler reasoning
 
 **Revisit if:**
 - Production: would need encrypted DB + retention policy + user consent UI (out of scope)
+
+---
+
+### ADR-006 — In-Memory Audio Pipeline
+**Date:** 2026-05-09 | **Status:** accepted
+
+**Context:**
+ADR-005 mandates no audio touches disk. This ADR specifies *how*, end to end, so implementation doesn't accidentally introduce a temp file or log line that violates the rule.
+
+**Decision:**
+Audio flows from browser RAM → HTTP body → backend RAM → Groq API → discarded. No filesystem step at any point.
+
+**Browser side:**
+```js
+const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+const recorder = new MediaRecorder(stream);
+const chunks = [];
+recorder.ondataavailable = e => chunks.push(e.data);
+recorder.onstop = async () => {
+  const blob = new Blob(chunks, { type: 'audio/webm' });
+  const formData = new FormData();
+  formData.append('file', blob, 'audio.webm');
+  await fetch('/transcribe', { method: 'POST', body: formData });
+  stream.getTracks().forEach(t => t.stop());  // release mic
+  // blob + chunks go out of scope → JS garbage collector reclaims them
+};
+recorder.start();
+```
+
+**Backend side (FastAPI):**
+```python
+@app.post("/transcribe")
+async def transcribe(file: UploadFile = File(...)):
+    # DO NOT LOG: file content
+    audio_bytes = await file.read()                   # bytes in RAM
+    content_type = file.content_type or "audio/webm"
+    return whisper_service.transcribe_audio(audio_bytes, content_type)
+    # audio_bytes goes out of scope at return → Python GC reclaims it
+```
+
+**Whisper service:**
+```python
+def transcribe_audio(audio_bytes: bytes, content_type: str) -> dict:
+    # DO NOT LOG: audio_bytes, transcript
+    response = groq_client.audio.transcriptions.create(
+        file=("audio.webm", audio_bytes, content_type),  # in-memory tuple
+        model="whisper-large-v3-turbo",
+        response_format="verbose_json",
+    )
+    return {
+        "transcript": response.text,
+        "language": response.language,
+        "duration_sec": response.duration,
+    }
+```
+
+**Why:**
+- `UploadFile.read()` returns `bytes` directly — no temp file is created (FastAPI uses SpooledTemporaryFile internally with a high RAM threshold; for typical voice clips ≤1MB this stays in RAM)
+- Groq's Python SDK accepts a `(filename, bytes, content_type)` tuple — no on-disk file required
+- `bytes` is a Python primitive: when the variable goes out of scope at function return, it's eligible for garbage collection. No explicit cleanup needed.
+- Browser `MediaStream.getTracks().forEach(t => t.stop())` releases the mic and lets the browser drop the underlying buffer.
+
+**Forbidden patterns:**
+- `tempfile.NamedTemporaryFile()` — writes to disk
+- `aiofiles.open(...).write(audio_bytes)` — writes to disk
+- `open("audio.webm", "wb").write(...)` — writes to disk
+- `await file.save(...)` — writes to disk
+- `logger.info(audio_bytes)` or any log including transcript or employer name
+
+**Verification (in TEST.md):**
+- After a `/transcribe` call, assert `os.listdir(tempfile.gettempdir())` has no new audio files
+- Assert backend logs contain no transcript text or employer names
+
+**Consequences:**
+- For audio >large_threshold (FastAPI default ~1MB), SpooledTemporaryFile may roll over to disk. For demo voice clips this is irrelevant. If we need long recordings, we'd configure the spool threshold higher or stream-process.
+
+**Revisit if:**
+- Voice clips routinely exceed ~30 seconds (raise SpooledTemporaryFile threshold or stream)
+- We need to retry Groq calls (would need to hold bytes longer, but still in RAM)

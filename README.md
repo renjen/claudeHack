@@ -11,8 +11,10 @@ AI-powered legal triage for workers. Voice-first wage theft detection that turns
 - `PLAN.md` — build plan + reconciliation decisions
 - `CLAUDE.md` — session instructions for Claude Code
 - `INDEX.md` — file registry + routing
+- `TODO.md` — active build queue (To-Do + Later)
 - `DESIGN.md` — architectural decisions (ADRs)
 - `FEATURES.md` — feature status tracker
+- `TEST.md` — per-module / per-stage testing guide
 
 ---
 

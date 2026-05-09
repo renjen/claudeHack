@@ -34,6 +34,8 @@ INDEX.md is assumed loaded at session start. Re-read only if registry changed.
 | **Classify / analyze** | `backend/classifier.py` | `backend/rag_service.py` | frontend, whisper | `backend/classifier.py` |
 | **Letter / generate** | `backend/letter_service.py` | `backend/classifier.py` | frontend, whisper, ner | `backend/letter_service.py` |
 | **Architectural decision** | `DESIGN.md` | relevant service file | unrelated services | `DESIGN.md` |
+| **Active step pickup** | `TODO.md` | the file the step touches | everything else | `TODO.md` (tick box), target file |
+| **Verify / test feature** | `TEST.md` | target module | unrelated modules | `tests/` if scripted; nothing if manual |
 | **Bug fix** | file with bug | files it imports (max 2) | unrelated | the broken file only |
 | **Bulk/script op** | `scripts/` (existing scripts) | target file | everything else | `scripts/`, target |
 | **Feature status check** | `FEATURES.md` | nothing | everything | `FEATURES.md` only |
@@ -52,10 +54,18 @@ INDEX.md is assumed loaded at session start. Re-read only if registry changed.
 | `CLAUDE.md` | Session instructions, rules, citation standard |
 | `INDEX.md` | This file — routing + registry |
 | `PLAN.md` | Build plan + reconciliation decisions |
+| `TODO.md` | Active work queue + later list |
 | `DESIGN.md` | All architectural decisions (ADRs) |
 | `FEATURES.md` | Features, status, related files |
+| `TEST.md` | Per-module / per-stage testing guide |
 | `README.md` | Quickstart (populated at H+7) |
 | `.env.example` | Template for API keys |
+
+### Tests (`tests/`)
+| File | Purpose |
+|------|---------|
+| `tests/fixtures/` | Pre-recorded audio clips, sample transcripts, mock data |
+| *(test scripts pending — see TEST.md for verification commands)* | — |
 
 ### Backend (`backend/`)
 | File | Purpose |

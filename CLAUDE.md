@@ -9,7 +9,7 @@
 
 **App:** Wage Theft Watchdog — AI-powered legal triage for workers
 **Hackathon:** Claude Hackathon — Track 1: Economic Empowerment & Education
-**Team:** Aryan + partner
+**Team:** Aryan + Renee
 **Stack:** Vite + React + Tailwind · FastAPI · Claude API · Whisper (Groq, OpenAI fallback) · ChromaDB · OpenAI embeddings · Python
 
 **Pipeline (5 logical stages, 4 endpoints):**
@@ -26,9 +26,11 @@
 
 1. Read `CLAUDE.md` (this file) ✓
 2. Read `INDEX.md` — file registry + routing
-3. Read `PLAN.md` if mid-build (build plan + reconciliation decisions)
-4. Read `DESIGN.md` if making architectural decisions
-5. Wait for instruction. Do NOT preemptively load source files.
+3. Read `TODO.md` if mid-build — current step / work queue
+4. Read `PLAN.md` if context on decisions is needed
+5. Read `DESIGN.md` if making architectural decisions
+6. Read `TEST.md` when verifying or testing a feature
+7. Wait for instruction. Do NOT preemptively load source files.
 
 ---
 
@@ -40,10 +42,13 @@
 | `backend/corpus/` | FLSA + state law text files | YES (on request) |
 | `frontend/` | Vite + React app | YES |
 | `frontend/src/components/` | React components | YES |
+| `tests/` | Test fixtures + test scripts | YES |
 | `scripts/` | Reusable bulk operation scripts | YES |
 | `PLAN.md` | Build plan + reconciliation decisions | YES |
+| `TODO.md` | Active work queue + later list | YES (update as steps complete) |
 | `DESIGN.md` | Architectural decisions (ADRs) | YES |
 | `FEATURES.md` | Feature status tracker | YES |
+| `TEST.md` | How to test each module/stage/feature | YES |
 | `INDEX.md` | Routing + file registry | YES (keep current) |
 
 ---
@@ -94,17 +99,20 @@ Every legal claim must be cited with source + section + verbatim text. No paraph
 - Employer names: never sent to analytics or telemetry.
 - Add `# DO NOT LOG` comment at every boundary function that handles PII.
 - Sessions are ephemeral. No DB, no persistence.
+- For the in-memory audio pipeline implementation (browser → backend → Groq), see `DESIGN.md` ADR-006.
 
 ---
 
 ## Behavioral Rules
 
-- Parallelize all independent operations
+- Parallelize all independent operations (must)
 - Batch ToolSearch calls — `select:tool1,tool2,...` in one call
-- For repetitive ops (5+ API calls OR 3+ file edits same shape): write a Python script to `scripts/`, run once
+- **3+ pending file changes → write a script.** If your queue has 3+ file edits/creates AND they share a pattern (same boilerplate, same rename, same format change), build a Python script in `scripts/` and run it once. Saves tokens, faster, reusable. Exception: each file needs genuinely bespoke content (e.g., writing 3 distinct doc files) — keep tool calls.
+- For repetitive ops (5+ API calls): write a Python script to `scripts/`, run once
 - Keep responses concise — one-sentence updates, not paragraphs
 - Flag context bloat — suggest fresh chat when degraded
-- Never add `Co-Authored-By` to git commits
+- Recommend optimizations throughout the developmenet process if it can streamline the logic better / saves cost with no change to output quality / saves tokens
+- Can add `Co-Authored-By` to git commits
 - Squash-style commits OK: "scaffold backend", "wire whisper", "RAG working", "demo polish"
 - Push to `main` directly. No branches for this 8-hour build.
 
@@ -118,6 +126,7 @@ Every legal claim must be cited with source + section + verbatim text. No paraph
 - When jurisdiction is ambiguous: surface both federal and state options, ask user
 - If a fact pattern is ambiguous: ask for clarification, don't assume worst-case
 - Immigration status is irrelevant under FLSA. Actively correct any mention of it as employer defense.
+- If you're unsure of your answer in any way, or don't know it, clearly state so, and mention to consult a professional lawyer. Do NOT make up answers and hallucinate.
 
 ---
 
