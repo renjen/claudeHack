@@ -1,6 +1,6 @@
 # INDEX.md — Wage Theft Watchdog
 
-**Last updated:** 2026-05-09 | **Status:** H+0 — foundations setup
+**Last updated:** 2026-05-09 | **Status:** H+6 complete — full pipeline built and tested
 
 ---
 
@@ -64,40 +64,41 @@ INDEX.md is assumed loaded at session start. Re-read only if registry changed.
 ### Tests (`tests/`)
 | File | Purpose |
 |------|---------|
-| `tests/fixtures/` | Pre-recorded audio clips, sample transcripts, mock data |
-| *(test scripts pending — see TEST.md for verification commands)* | — |
+| `tests/fixtures/demo_es_overtime.mp3` | Spanish OT demo audio (gTTS generated) |
 
 ### Backend (`backend/`)
 | File | Purpose |
 |------|---------|
-| `backend/main.py` | FastAPI app, 4 routes, CORS — *(scaffold pending H+0)* |
-| `backend/whisper_service.py` | Audio → transcript via Groq Whisper — *(pending H+1)* |
-| `backend/ner_service.py` | Claude Haiku extraction → structured JSON — *(pending H+2)* |
-| `backend/rag_service.py` | ChromaDB setup + FLSA chunk retrieval — *(pending H+2)* |
-| `backend/classifier.py` | Claude Sonnet violation classification — *(pending H+3)* |
-| `backend/letter_service.py` | Claude Sonnet demand letter + DOL pre-fill — *(pending H+4)* |
-| `backend/corpus/flsa.txt` | FLSA full text (public domain) — *(pending H+2)* |
-| `backend/requirements.txt` | Pinned Python deps |
+| `backend/main.py` | FastAPI app, 4 routes, CORS=* |
+| `backend/whisper_service.py` | Audio → transcript via Groq `whisper-large-v3-turbo` |
+| `backend/ner_service.py` | Claude Haiku structured JSON fact extraction |
+| `backend/rag_service.py` | ChromaDB PersistentClient + OpenAI embeddings + FLSA retrieval |
+| `backend/classifier.py` | Claude Sonnet violation classifier w/ prompt caching |
+| `backend/letter_service.py` | Claude Sonnet demand letter + DOL prefill (max_tokens=4000) |
+| `backend/corpus/flsa.txt` | FLSA full text — 146 chunks embedded in `.chromadb/` |
+| `backend/requirements.txt` | Python deps |
+| `backend/.chromadb/` | Persisted ChromaDB embeddings (auto-populated on first run) |
 
 ### Frontend (`frontend/`)
 | File | Purpose |
 |------|---------|
-| `frontend/src/App.jsx` | Single-page app shell, step state — *(pending H+0)* |
-| `frontend/src/main.jsx` | Vite entry — *(pending H+0)* |
-| `frontend/vite.config.js` | Vite config — *(pending H+0)* |
-| `frontend/index.html` | HTML entry — *(pending H+0)* |
-| `frontend/src/components/VoiceRecorder.jsx` | Mic input, MediaRecorder — *(pending H+5)* |
-| `frontend/src/components/TranscriptViewer.jsx` | Editable transcript + lang badge — *(pending H+5)* |
-| `frontend/src/components/FactsPanel.jsx` | Extracted facts summary — *(pending H+5)* |
-| `frontend/src/components/ViolationBadge.jsx` | Violation type + confidence + citation — *(pending H+5)* |
-| `frontend/src/components/DemandLetter.jsx` | Generated letter, copy/download — *(pending H+5)* |
-| `frontend/src/components/DOLForm.jsx` | DOL pre-fill, copy button — *(pending H+5)* |
+| `frontend/src/App.jsx` | Step state machine: idle→extracting→analyzing→generating→complete |
+| `frontend/src/main.jsx` | Vite entry |
+| `frontend/vite.config.js` | Vite config (allowedHosts: host.docker.internal) |
+| `frontend/index.html` | HTML entry |
+| `frontend/src/components/VoiceRecorder.jsx` | Mic input → POST /transcribe → onTranscript |
+| `frontend/src/components/TextInput.jsx` | Textarea → onTranscript (sessionStorage draft) |
+| `frontend/src/components/TranscriptViewer.jsx` | Transcript + language badge |
+| `frontend/src/components/FactsPanel.jsx` | Extracted facts grid + claims |
+| `frontend/src/components/ViolationBadge.jsx` | Violation type/severity/citation/damages card |
+| `frontend/src/components/DemandLetter.jsx` | Full letter with copy button |
+| `frontend/src/components/DOLForm.jsx` | DOL prefill fields + copy + filing link |
 | `frontend/package.json` | Vite + React + Tailwind deps |
 
 ### Scripts (`scripts/`)
 | File | Purpose |
 |------|---------|
-| *(none yet)* | — |
+| `scripts/test_scenarios.py` | H+6 scenario suite: 5 violation types + 3 edge cases |
 
 ---
 

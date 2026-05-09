@@ -219,3 +219,9 @@ __marimo__/
 
 ### OTHER ###
 CLAUDE_MD_REFERENCE.md
+node_modules/
+frontend/node_modules/
+backend/.chromadb/
+.claude/
+*.mp3
+*.wav
