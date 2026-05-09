@@ -168,13 +168,14 @@
 
 #### Complex / Later
 - [ ] **B3** Spanish UI — i18n all component labels + status text; detect browser language and switch *(LATER #10)*
-- [ ] **B5** Streaming UX — update `frontend/src/App.jsx` to consume SSE so analysis streams word-by-word instead of appearing all at once *(LATER #4 — frontend half)*
+- [ ] **B5** Streaming UX —
+- [ ]  update `frontend/src/App.jsx` to consume SSE so analysis streams word-by-word instead of appearing all at once *(LATER #4 — frontend half)*
 - [ ] **B8** Organize FEATURES.md *(LATER #1)*
 - [ ] **B7** Bias/fairness test scenarios — extend `scripts/test_scenarios.py` with multi-language + edge-case demographic prompts; evaluate output consistency
 - [ ] **B6** Login + "my cases" UI — consent screen + session view; `frontend/src/App.jsx` + new components *(LATER #9 — frontend half)*
 
 #### Backend security (needs Track A work — flagged here for visibility)
-- [ ] **B18** *(backend)* Server-side rate limiting — `slowapi` middleware on `/transcribe`, `/analyze`, `/generate-letter`: 10 req/min per IP; return 429 with `Retry-After` header; frontend surfaces this as a user-readable error
-- [ ] **B19** *(backend)* Audio size enforcement server-side — reject `Content-Length > 10 MB` in `/transcribe` before passing to Groq; client-side cap (B11) is UX, server-side is the real gate
-- [ ] **B20** *(backend)* Prompt injection guardrails — strip null bytes and control characters from transcript string before injecting into any Claude prompt; log (without content) when stripping occurs
-- [ ] **B21** *(backend)* CORS hardening — move `allow_origins` to `ALLOWED_ORIGINS` env var (default `localhost:5173`); in production, restrict to the deployed frontend domain only
+- [x] **B18** *(backend)* Server-side rate limiting — `slowapi` on `/transcribe`, `/analyze`, `/generate-letter`: 10 req/min per IP; returns 429 — verified 11th req → 429
+- [x] **B19** *(backend)* Audio size enforcement server-side — rejects `> 10 MB` in `/transcribe` with HTTP 413 before Groq — verified with 11 MB payload
+- [x] **B20** *(backend)* Prompt injection guardrails — strips null bytes + C0 control chars from transcript before any Claude prompt; logs (without content) when stripping occurs — verified
+- [x] **B21** *(backend)* CORS hardening — `allow_origins` reads from `ALLOWED_ORIGINS` env var (default `localhost:5173,localhost:5174`); no wildcard — verified

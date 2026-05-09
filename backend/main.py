@@ -3,10 +3,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import os
-from fastapi import FastAPI, UploadFile, File
+import re
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from backend.whisper_service import transcribe_audio
 from backend.ner_service import extract_facts
 from backend.rag_service import init_corpus, retrieve
@@ -27,6 +32,17 @@ if _sentry_dsn:
         },
     )
 
+# B18: Rate limiter — 10 req/min per IP on expensive endpoints
+limiter = Limiter(key_func=get_remote_address)
+
+# B21: CORS — default to localhost only; override with ALLOWED_ORIGINS env var in production
+_allowed_origins = os.environ.get(
+    "ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:5174"
+).split(",")
+
+# B19: Server-side audio size gate (client-side cap in VoiceRecorder.jsx is UX only)
+_MAX_AUDIO_BYTES = 10 * 1024 * 1024  # 10 MB
+
 # A2: Keyword boosters for weak semantic retrieval
 # Colloquial terms often miss dense legal text — these queries surface the right sections
 _CLAIM_BOOSTERS = {
@@ -45,6 +61,18 @@ _CLAIM_BOOSTERS = {
 }
 
 
+# B20: Strip null bytes and C0 control chars from transcript before any Claude prompt.
+# Preserves \t, \n, \r. Logs (without content) when stripping occurs.
+def _sanitize_transcript(text: str) -> str:
+    if not isinstance(text, str):
+        return text
+    cleaned = text.replace("\x00", "")
+    cleaned = re.sub(r"[\x01-\x08\x0b\x0c\x0e-\x1f]", "", cleaned)
+    if cleaned != text:
+        print("[sanitize] stripped control characters from transcript")
+    return cleaned
+
+
 @asynccontextmanager
 async def lifespan(app):
     init_corpus()
@@ -52,9 +80,14 @@ async def lifespan(app):
 
 app = FastAPI(title="Wage Theft Watchdog", lifespan=lifespan)
 
+# B18: Wire rate limit exceeded handler
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# B21: Hardened CORS — env-configurable, not wildcard
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -67,8 +100,12 @@ def health():
 
 # DO NOT LOG — handles PII (audio bytes, transcript)
 @app.post("/transcribe")
-async def transcribe(file: UploadFile = File(...)):
+@limiter.limit("10/minute")
+async def transcribe(request: Request, file: UploadFile = File(...)):
     audio_bytes = await file.read()
+    # B19: Reject oversized audio server-side
+    if len(audio_bytes) > _MAX_AUDIO_BYTES:
+        raise HTTPException(status_code=413, detail="Audio file exceeds 10 MB limit")
     return transcribe_audio(audio_bytes, file.content_type or "audio/webm")
 
 
@@ -79,7 +116,9 @@ class TranscriptRequest(BaseModel):
 # DO NOT LOG — handles PII (transcript, employer name)
 @app.post("/extract")
 def extract(req: TranscriptRequest):
-    return extract_facts(req.transcript)
+    # B20: Sanitize before injecting into Claude prompt
+    safe = _sanitize_transcript(req.transcript)
+    return extract_facts(safe)
 
 
 class AnalyzeRequest(BaseModel):
@@ -88,7 +127,8 @@ class AnalyzeRequest(BaseModel):
 
 # DO NOT LOG — handles PII (employer name, work hours)
 @app.post("/analyze")
-def analyze(req: AnalyzeRequest):
+@limiter.limit("10/minute")
+def analyze(request: Request, req: AnalyzeRequest):
     facts = req.facts
     claims = " ".join(facts.get("raw_claims") or [])
 
@@ -112,7 +152,6 @@ def analyze(req: AnalyzeRequest):
     for keywords, booster_query in _CLAIM_BOOSTERS.items():
         if any(kw in claims_lower for kw in keywords):
             top_score = chunks[0].get("score") if chunks else 1.0
-            # Score > 0.8 in L2 distance = weak retrieval; always boost for explicit keywords
             if top_score is None or top_score > 0.6 or any(kw in claims_lower for kw in keywords):
                 for extra in retrieve(booster_query, k=3):
                     if extra["text"] not in seen_texts:
@@ -129,5 +168,6 @@ class LetterRequest(BaseModel):
 
 # DO NOT LOG — handles PII (employer name, wages, worker facts)
 @app.post("/generate-letter")
-def generate_letter_endpoint(req: LetterRequest):
+@limiter.limit("10/minute")
+def generate_letter_endpoint(request: Request, req: LetterRequest):
     return generate_letter(req.facts, req.violations)
