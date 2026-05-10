@@ -171,4 +171,4 @@ This tool provides **legal information**, not legal advice. It is not a substitu
 
 ---
 
-*Built with ❤️ by Aryan & Renee at the Claude Hackathon.*
+*Built by Aryan & Renee at the Claude Hackathon UCSD.*
