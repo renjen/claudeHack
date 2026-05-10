@@ -275,6 +275,11 @@ Pipeline retries with exponential backoff prevent transient failures from silent
 
 *Ethics angle:* Reliability is an equity issue. A worker who records a 90-second testimony and gets a blank screen has been failed. Explicit bounds + clear error messages maintain dignity in failure states.
 
+**6. Lawyer referral CTA (B4)**
+`LawyerCTA` renders after the DOL form on pipeline complete, linking to lawhelp.org (free legal aid directory) and the DOL WHD complaint portal. The component includes the legal-information disclaimer inline so the referral context is clear.
+
+*Ethics angle:* The app cannot replace a lawyer. Surfacing accessible next steps — especially free legal aid — closes the gap between "I know my rights" and "I can act on them." Workers who cannot afford attorneys are the primary user; passive omission of referral paths is itself a harm.
+
 **Overall ethical posture:**
 The app produces *legal information* (not legal advice). Every output mitigation above protects the integrity of that information: ensuring it is not corrupted by injection, not exposed through insecure channels, and not silently dropped on failure. For workers who have no other recourse, the accuracy and safety of this tool's output is not a feature — it is the product.
 
@@ -287,3 +292,31 @@ The app produces *legal information* (not legal advice). Every output mitigation
 **Revisit if:**
 - App moves to SSR (Next.js) — re-audit all render paths for `dangerouslySetInnerHTML`
 - Letter output requires rich formatting — would need a whitelist-based sanitizer (e.g., DOMPurify) instead of strip-all
+
+---
+
+### ADR-008 — Editable Transcript Review Step (B1)
+**Date:** 2026-05-09 | **Status:** accepted
+
+**Context:**
+Whisper transcription is fast but not perfect, especially for accented speech, mixed-language input, or employer/location names. An extraction error at this stage propagates through every downstream stage — wrong facts → wrong violations → wrong letter. The worker has no way to know the transcript was wrong.
+
+**Decision:**
+After a voice recording is transcribed, the app parks at a `reviewing` step and renders `TranscriptEditor.jsx` — an editable textarea pre-filled with the Whisper output. The user can correct errors, then click "Confirm & Analyze →" to start the pipeline. Text input skips this step (the user already typed the text).
+
+`handleTranscript` now branches: `duration_sec !== null` → `step = 'reviewing'`; else → `runPipeline()` directly. The pipeline logic was extracted into `runPipeline(transcript)` to support both paths.
+
+**Why voice-only:**
+Text input is already user-authored — a review step adds friction with no benefit. Voice transcripts are machine-generated and deserve human verification before legal analysis.
+
+**Why a full stop (not an overlay or inline edit):**
+The transcript is the single most important input to the entire pipeline. Burying an edit affordance in a sidebar or making it dismissible-by-default would result in workers skipping it under time pressure, defeating the purpose.
+
+**Consequences:**
+- One extra user action for all voice submissions
+- `handleTranscript` → `runPipeline` split is a structural change to `App.jsx`; any future pipeline entry point must call `runPipeline`, not `handleTranscript`
+- `TranscriptEditor` re-uses the same 5,000-char limit and counter as `TextInput` for consistency
+
+**Revisit if:**
+- Whisper accuracy improves enough that review adds more friction than it saves — could make it opt-in
+- Streaming transcription is added — would need to handle partial transcripts in the editor

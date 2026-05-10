@@ -123,6 +123,7 @@
 ---
 
 ### Parallel Track A — Backend / Data / Infrastructure
+> New files added by B6 auth work: `backend/db.py`, `backend/auth_service.py`. Endpoints `/auth/register`, `/auth/login`, `POST /cases`, `GET /cases` live in `backend/main.py`. `JWT_SECRET` added to `.env.example`.
 > Python only. No frontend files touched.
 
 - [x] **A1** Fix prompt caching — `cache_creation_input_tokens: 2424` confirmed; new system prompt exceeds 1024-token threshold *(LATER #15)*
@@ -149,22 +150,22 @@
 
 #### User Safety
 - [x] **B16** Clipboard PII warning — after copy in `DemandLetter.jsx` and `DOLForm.jsx`, show a 4s toast: "Copied — this document contains personal details. Store it securely."
-- [ ] **B17** HTTP warning banner — on mount in `App.jsx`, detect `window.location.protocol === 'http:'` + not localhost; render a dismissible red banner: "Connection is not secure. Use HTTPS before submitting real information."
+- [x] **B17** HTTP warning banner — on mount in `App.jsx`, detect `window.location.protocol === 'http:'` + not localhost; render a dismissible red banner: "Connection is not secure. Use HTTPS before submitting real information."
 
 #### Availability / Reliability
-- [ ] **B9** Pipeline retry logic — wrap each `fetch` in `App.jsx` with 2-attempt exponential backoff (500ms → 1500ms); show "Retrying…" in the spinner label on attempt 2
-- [ ] **B11** Audio file size cap — client-side 10 MB check in `VoiceRecorder.jsx` before POST to `/transcribe`; show inline error instead of sending oversized blob
-- [ ] **B12** Transcript length cap — cap textarea in `TextInput.jsx` at 5 000 chars with a live character counter; disable submit and show error above threshold
+- [x] **B9** Pipeline retry logic — wrap each `fetch` in `App.jsx` with 2-attempt exponential backoff (500ms → 1500ms); show "Retrying…" in the spinner label on attempt 2
+- [x] **B11** Audio file size cap — client-side 10 MB check in `VoiceRecorder.jsx` before POST to `/transcribe`; show inline error instead of sending oversized blob
+- [x] **B12** Transcript length cap — cap textarea in `TextInput.jsx` at 5 000 chars with a live character counter; disable submit and show error above threshold
 
 #### Core UX Features
-- [ ] **B1** Editable transcript step — insert editable textarea between Whisper output and `/extract`; new component + `frontend/src/App.jsx` *(LATER #5)*
-- [ ] **B4** Lawyer referral CTA — "Connect with a lawyer" call-to-action when disclaimer renders; new component *(LATER: connect)*
-- [ ] **B2** PDF download — "Download PDF" button in `frontend/src/components/DemandLetter.jsx` using `jspdf` or `html2canvas` *(LATER #6)*
+- [x] **B1** Editable transcript step — insert editable textarea between Whisper output and `/extract`; new component + `frontend/src/App.jsx` *(LATER #5)*
+- [x] **B4** Lawyer referral CTA — "Connect with a lawyer" call-to-action when disclaimer renders; new component *(LATER: connect)*
+- [x] **B2** PDF download — "Download PDF" button in `frontend/src/components/DemandLetter.jsx` using `jspdf` or `html2canvas` *(LATER #6)*
 
 #### Resilience + Polish
-- [ ] **B10** Backend offline recovery — poll `/health` every 15s when status is `down`; auto-restore the nav status pill when it comes back online without a page reload
-- [ ] **B15** Content Security Policy — add `<meta http-equiv="Content-Security-Policy">` to `frontend/index.html` restricting scripts to `'self'` + `fonts.googleapis.com`; block inline scripts and `eval`
-- [ ] **B13** Bundle code-splitting — lazy-load `DemandLetter` and `DOLForm` with `React.lazy` + `Suspense` since they only render at end of pipeline; reduces initial JS parse time
+- [x] **B10** Backend offline recovery — poll `/health` every 15s when status is `down`; auto-restore the nav status pill when it comes back online without a page reload
+- [x] **B15** Content Security Policy — add `<meta http-equiv="Content-Security-Policy">` to `frontend/index.html` restricting scripts to `'self'` + `fonts.googleapis.com`; block inline scripts and `eval`
+- [x] **B13** Bundle code-splitting — lazy-load `DemandLetter` and `DOLForm` with `React.lazy` + `Suspense` since they only render at end of pipeline; reduces initial JS parse time
 
 #### Complex / Later
 - [ ] **B3** Spanish UI — i18n all component labels + status text; detect browser language and switch *(LATER #10)*
@@ -172,7 +173,7 @@
 - [ ]  update `frontend/src/App.jsx` to consume SSE so analysis streams word-by-word instead of appearing all at once *(LATER #4 — frontend half)*
 - [ ] **B8** Organize FEATURES.md *(LATER #1)*
 - [ ] **B7** Bias/fairness test scenarios — extend `scripts/test_scenarios.py` with multi-language + edge-case demographic prompts; evaluate output consistency
-- [ ] **B6** Login + "my cases" UI — consent screen + session view; `frontend/src/App.jsx` + new components *(LATER #9 — frontend half)*
+- [x] **B6** Login + "my cases" UI — consent screen + session view; `frontend/src/App.jsx` + new components *(LATER #9 — frontend half)*
 
 #### Backend security (needs Track A work — flagged here for visibility)
 - [x] **B18** *(backend)* Server-side rate limiting — `slowapi` on `/transcribe`, `/analyze`, `/generate-letter`: 10 req/min per IP; returns 429 — verified 11th req → 429

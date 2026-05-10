@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react'
+import { useT } from '../LocaleContext'
 
 export default function VoiceRecorder({ onTranscript }) {
+  const t = useT()
   const [state, setState] = useState('idle') // idle | recording | loading | error
   const [error, setError] = useState(null)
   const mediaRecorder = useRef(null)
@@ -17,7 +19,7 @@ export default function VoiceRecorder({ onTranscript }) {
       mediaRecorder.current.start()
       setState('recording')
     } catch {
-      setError('Microphone access denied. Please allow microphone access and try again.')
+      setError(t('recorder.mic_denied'))
       setState('error')
     }
   }
@@ -30,11 +32,16 @@ export default function VoiceRecorder({ onTranscript }) {
   async function handleStop(stream) {
     stream.getTracks().forEach(t => t.stop())
     const blob = new Blob(chunks.current, { type: 'audio/webm' })
+    if (blob.size > 10 * 1024 * 1024) {
+      setError(t('recorder.too_large'))
+      setState('error')
+      return
+    }
     const form = new FormData()
     form.append('file', blob, 'recording.webm')
     try {
       const res = await fetch('http://localhost:8000/transcribe', { method: 'POST', body: form })
-      if (!res.ok) throw new Error('Transcription failed')
+      if (!res.ok) throw new Error(t('recorder.failed'))
       const data = await res.json()
       onTranscript(data)
       setState('idle')
@@ -56,7 +63,7 @@ export default function VoiceRecorder({ onTranscript }) {
         <button
           onClick={isRecording ? stopRecording : startRecording}
           disabled={isLoading}
-          aria-label={isRecording ? 'Stop recording' : isLoading ? 'Transcribing…' : 'Start recording'}
+          aria-label={isRecording ? t('recorder.recording') : isLoading ? t('recorder.loading') : t('recorder.idle')}
           aria-pressed={isRecording}
           className={`relative w-20 h-20 rounded-full flex items-center justify-center text-3xl transition-all shadow-lg
             ${isRecording
@@ -75,9 +82,9 @@ export default function VoiceRecorder({ onTranscript }) {
         </button>
       </div>
       <p aria-live="polite" className="text-xs text-center min-h-[1.25rem]">
-        {state === 'idle'      && <span className="text-slate-500 dark:text-slate-400">Tap to start recording — speak naturally</span>}
-        {state === 'recording' && <span className="text-red-600 dark:text-red-400 font-medium">Recording… tap to stop</span>}
-        {state === 'loading'   && <span className="text-slate-500 dark:text-slate-400">Transcribing with Whisper…</span>}
+        {state === 'idle'      && <span className="text-slate-500 dark:text-slate-400">{t('recorder.idle')}</span>}
+        {state === 'recording' && <span className="text-red-600 dark:text-red-400 font-medium">{t('recorder.recording')}</span>}
+        {state === 'loading'   && <span className="text-slate-500 dark:text-slate-400">{t('recorder.loading')}</span>}
         {state === 'error'     && <span className="text-red-600 dark:text-red-400">{error}</span>}
       </p>
     </div>

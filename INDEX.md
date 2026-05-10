@@ -76,6 +76,8 @@ INDEX.md is assumed loaded at session start. Re-read only if registry changed.
 | `backend/rag_service.py` | ChromaDB PersistentClient + OpenAI embeddings + FLSA retrieval |
 | `backend/classifier.py` | Claude Sonnet violation classifier w/ prompt caching |
 | `backend/letter_service.py` | Claude Sonnet demand letter + DOL prefill (max_tokens=4000) |
+| `backend/db.py` | SQLite init + schema (users, cases tables) |
+| `backend/auth_service.py` | bcrypt password hashing, JWT create/decode, user register/login, case save/get |
 | `backend/corpus/flsa.txt` | FLSA full text — 146 chunks embedded in `.chromadb/` |
 | `backend/requirements.txt` | Python deps |
 | `backend/.chromadb/` | Persisted ChromaDB embeddings (auto-populated on first run) |
@@ -95,6 +97,10 @@ INDEX.md is assumed loaded at session start. Re-read only if registry changed.
 | `frontend/src/components/DemandLetter.jsx` | Full letter with copy button |
 | `frontend/src/components/DOLForm.jsx` | DOL prefill fields + copy + filing link |
 | `frontend/src/components/PiiToast.jsx` | Fixed-position 4s PII warning toast shown after copy |
+| `frontend/src/components/AuthModal.jsx` | Login / register modal — issues JWT on success |
+| `frontend/src/components/CaseHistory.jsx` | Slide-out panel showing last 10 saved cases; restore on click |
+| `frontend/src/components/TranscriptEditor.jsx` | Editable transcript review step (voice only) before pipeline starts |
+| `frontend/src/components/LawyerCTA.jsx` | "Connect with a lawyer" CTA — renders after DOLForm on pipeline complete |
 | `frontend/package.json` | Vite + React + Tailwind deps |
 | `frontend/src/utils/sanitize.js` | `stripHtml` (output sanitization) + `sanitizeTranscript` (input sanitization before Claude prompts) |
 

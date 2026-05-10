@@ -4,11 +4,13 @@ load_dotenv()
 
 import os
 import re
-from fastapi import FastAPI, UploadFile, File, HTTPException, Request
+from fastapi import FastAPI, UploadFile, File, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
+from typing import Optional
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -17,6 +19,7 @@ from backend.ner_service import extract_facts
 from backend.rag_service import init_corpus, retrieve
 from backend.classifier import classify_violations
 from backend.letter_service import generate_letter
+from backend import db, auth_service
 
 # A10: Optional Sentry — only activates if SENTRY_DSN is set
 _sentry_dsn = os.environ.get("SENTRY_DSN")
@@ -73,8 +76,19 @@ def _sanitize_transcript(text: str) -> str:
     return cleaned
 
 
+_bearer = HTTPBearer()
+
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(_bearer)):
+    try:
+        payload = auth_service.decode_token(credentials.credentials)
+        return {"id": int(payload["sub"]), "username": payload["username"]}
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+
 @asynccontextmanager
 async def lifespan(app):
+    db.init_db()
     init_corpus()
     yield
 
@@ -171,3 +185,66 @@ class LetterRequest(BaseModel):
 @limiter.limit("10/minute")
 def generate_letter_endpoint(request: Request, req: LetterRequest):
     return generate_letter(req.facts, req.violations)
+
+
+# ── Auth ──────────────────────────────────────────────────────────────────────
+
+class AuthRequest(BaseModel):
+    username: str
+    password: str
+
+
+@app.post("/auth/register")
+def register(req: AuthRequest):
+    if len(req.username) < 3:
+        raise HTTPException(status_code=400, detail="Username must be at least 3 characters")
+    if len(req.password) < 5:
+        raise HTTPException(status_code=400, detail="Password must be at least 5 characters")
+    if len(req.password) > 15:
+        raise HTTPException(status_code=400, detail="Password must be at most 15 characters")
+    try:
+        user = auth_service.register_user(req.username, req.password)
+        token = auth_service.create_token(user["id"], user["username"])
+        return {"access_token": token, "username": user["username"]}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+# DO NOT LOG — handles PII (password)
+@app.post("/auth/login")
+def login(req: AuthRequest):
+    try:
+        user = auth_service.login_user(req.username, req.password)
+        token = auth_service.create_token(user["id"], user["username"])
+        return {"access_token": token, "username": user["username"]}
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+
+
+# ── Cases ─────────────────────────────────────────────────────────────────────
+
+class SaveCaseRequest(BaseModel):
+    transcript: Optional[str] = None
+    facts: Optional[dict] = None
+    violations: Optional[list] = None
+    demand_letter: Optional[str] = None
+    dol_prefill: Optional[dict] = None
+
+
+@app.post("/cases")
+def save_case(req: SaveCaseRequest, user=Depends(get_current_user)):
+    auth_service.save_case(user["id"], req.model_dump())
+    return {"ok": True}
+
+
+@app.get("/cases")
+def get_cases(user=Depends(get_current_user)):
+    return auth_service.get_cases(user["id"])
+
+
+@app.delete("/cases/{case_id}")
+def delete_case(case_id: int, user=Depends(get_current_user)):
+    deleted = auth_service.delete_case(user["id"], case_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Case not found")
+    return {"ok": True}

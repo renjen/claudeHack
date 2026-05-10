@@ -44,3 +44,13 @@
 | Output sanitization (B14) | `built` | B-track | `frontend/src/utils/sanitize.js`, `frontend/src/components/DemandLetter.jsx`, `frontend/src/components/DOLForm.jsx`, `frontend/src/components/ViolationBadge.jsx` |
 | Input sanitization / prompt injection guard (B22) | `built` | B-track | `frontend/src/utils/sanitize.js`, `frontend/src/App.jsx` |
 | Clipboard PII warning toast (B16) | `built` | B-track | `frontend/src/components/PiiToast.jsx`, `frontend/src/components/DemandLetter.jsx`, `frontend/src/components/DOLForm.jsx` |
+| HTTP insecure connection warning (B17) | `built` | B-track | `frontend/src/App.jsx` |
+| Pipeline retry w/ exponential backoff (B9) | `built` | B-track | `frontend/src/App.jsx` |
+| Audio file size cap 10 MB (B11) | `built` | B-track | `frontend/src/components/VoiceRecorder.jsx` |
+| Transcript length cap 5,000 chars (B12) | `built` | B-track | `frontend/src/components/TextInput.jsx` |
+| Editable transcript review step (B1) | `built` | B-track | `frontend/src/components/TranscriptEditor.jsx`, `frontend/src/App.jsx` |
+| Lawyer referral CTA (B4) | `built` | B-track | `frontend/src/components/LawyerCTA.jsx`, `frontend/src/App.jsx` |
+| PDF download of demand letter (B2) | `built` | B-track | `frontend/src/components/DemandLetter.jsx` |
+| Backend offline recovery / health polling (B10) | `built` | B-track | `frontend/src/App.jsx` |
+| Content Security Policy meta tag (B15) | `built` | B-track | `frontend/index.html` |
+| Code-split DemandLetter + DOLForm + LawyerCTA (B13) | `built` | B-track | `frontend/src/App.jsx` |

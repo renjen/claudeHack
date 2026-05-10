@@ -8,3 +8,5 @@ groq
 chromadb
 pydantic
 slowapi
+bcrypt
+PyJWT
